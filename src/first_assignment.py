@@ -1,10 +1,11 @@
 from matplotlib import pyplot as pyplot
-from numpy import linspace, zeros
+from numpy import linspace, zeros, meshgrid, array
 
-# todo: Subtitute these for a nice enum python implementation
+# todo: Replace these for a nice enum python implementation
 OBJECTIVE_FUNCTION=0
 EQUALITY_CONSTRAINT=1
 INEQUALITY_CONSTRAINT=2
+
 
 # All objective function, equality and inequality constraints are defined here following the
 # 'Standard Design Optimization Model described in 'Introduction to optimum design - Arora'
@@ -12,8 +13,7 @@ INEQUALITY_CONSTRAINT=2
 # h(x[]) = h(x1, x2, x3, ...) = 0    : Equality constraints
 # g(x[]) = g(x1, x2, x3, ...) <= 0   : Inequality constraints
 
-
-def contour2Dfunction(x1_domain, x2_domain, f, functionType, levels=None):
+def contourTwoVariablefunction(x1_domain, x2_domain, f, functionType, levels=None):
     '''
     Draw contour lines of objective functions values and shades equality and inequality constraints
     revealing the feasible region. This allows for a graphic analysis and visualization of the
@@ -31,20 +31,30 @@ def contour2Dfunction(x1_domain, x2_domain, f, functionType, levels=None):
     '''
     
     f_image = zeros((len(x1_domain),len(x2_domain)))
+    X1, X2 = meshgrid(x1_domain, x2_domain)
     for i,x1 in enumerate(x1_domain):
         for j,x2 in enumerate(x2_domain):
             f_image[i,j] = f(x1, x2)
     if functionType == OBJECTIVE_FUNCTION:
         if levels is not None:
-            cs = pyplot.contour(x1_domain, x2_domain,f_image, levels)
+            cs = pyplot.contour(X1, X2,f_image, levels)
         else:
-            cs = pyplot.contour(x1_domain, x2_domain,f_image)
+            cs = pyplot.contour(X1, X2,f_image)
+        pyplot.quiver(X1,X2,(10,10),(10,10))
         pyplot.clabel(cs)
     elif functionType == EQUALITY_CONSTRAINT:
-        cs = pyplot.contour(x1_domain, x2_domain,f_image, [0])
+        cs = pyplot.contour(X1, X2,f_image, [0])
     elif functionType == INEQUALITY_CONSTRAINT:
-        cs = pyplot.contourf(x1_domain, x2_domain,f_image, [0,max(max(x1_domain), max(x2_domain))])
+        cs = pyplot.contourf(X1, X2,f_image, [0,max(max(x1_domain), max(x2_domain))])
     return cs
+
+
+def quiverGradientOf2dFunction(x1_domain, x2_domain, f, functionType, levels=None):
+    X1, X2 = meshgrid(x1_domain, x2_domain)
+    epsilon = 1e-9
+    
+    f_image = zeros((len(x1_domain),len(x2_domain)))
+    f_image = zeros((len(x1_domain),len(x2_domain)))
     
 
 def exercise_3_1():
@@ -56,8 +66,8 @@ def exercise_3_1():
     def g(x1, x2):
         return x1 + x2 -4 
     
-    contour2Dfunction(x_vector, y_vector,f, OBJECTIVE_FUNCTION,levels=linspace(0.0, 15.0,16))
-    contour2Dfunction(x_vector, y_vector,g, INEQUALITY_CONSTRAINT)
+    contourTwoVariablefunction(x_vector, y_vector,f, OBJECTIVE_FUNCTION,levels=linspace(0.0, 15.0,16))
+    contourTwoVariablefunction(x_vector, y_vector,g, INEQUALITY_CONSTRAINT)
     pyplot.show()
     
 def exercise_3_8():
@@ -71,9 +81,9 @@ def exercise_3_8():
     def g2(x1, x2):
         return x2 - 3
             
-    contour2Dfunction(x1_domain, x2_domain,f, OBJECTIVE_FUNCTION, levels=linspace(0,-22,6))
-    contour2Dfunction(x1_domain, x2_domain,g1, INEQUALITY_CONSTRAINT)
-    contour2Dfunction(x1_domain, x2_domain,g2, INEQUALITY_CONSTRAINT)
+    contourTwoVariablefunction(x1_domain, x2_domain,f, OBJECTIVE_FUNCTION, levels=linspace(0,-22,6))
+    contourTwoVariablefunction(x1_domain, x2_domain,g1, INEQUALITY_CONSTRAINT)
+    contourTwoVariablefunction(x1_domain, x2_domain,g2, INEQUALITY_CONSTRAINT)
     pyplot.show()
     
     
@@ -86,8 +96,9 @@ def exercise_3_13():
     def g1(x1, x2):
         return x1**2. + x2**2. + 2.*x1 - 16
             
-    contour2Dfunction(x1_domain, x2_domain,f, levels=linspace(210, 600, 6))
-    contour2Dfunction(x1_domain, x2_domain,g1, EQUALITY_CONSTRAINT)
+    contourTwoVariablefunction(x1_domain, x2_domain,f, levels=linspace(210, 600, 6))
+    contourTwoVariablefunction(x1_domain, x2_domain,g1, EQUALITY_CONSTRAINT)
     pyplot.show()
     
-exercise_3_8()
+if __name__ == "__main__":
+    exercise_3_8()
