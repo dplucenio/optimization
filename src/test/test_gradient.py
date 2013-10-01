@@ -16,6 +16,7 @@ class Test(unittest.TestCase):
             return x[0]
         assert_almost_equal(gradient(f, [0.0]), [1.0], 6)
 
+
     def testCubicFunction(self):
         def f(x):
             x1 = x[0]
