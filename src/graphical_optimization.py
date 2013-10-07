@@ -1,5 +1,6 @@
 from matplotlib import pyplot as pyplot
-from numpy import zeros, meshgrid
+from numpy import zeros, meshgrid, linspace
+from calculus import gradient
 
 # todo: Replace these for a nice enum python implementation
 OBJECTIVE_FUNCTION=0
@@ -30,22 +31,32 @@ def contourTwoVariablefunction(x1_domain, x2_domain, f, functionType, levels=Non
             f_image[i,j] = f(x1, x2)
             
     if functionType == INEQUALITY_CONSTRAINT:
-        cs = pyplot.contourf(X1, X2,f_image, [0,max(max(x1_domain), max(x2_domain))], colors=((0.75,0.75,0.75,),))
+        cs = pyplot.contourf(X1, X2,f_image, [0,max(max(x1_domain), max(x2_domain))], colors=((0.85,0.8,0.95,),))
     elif functionType == EQUALITY_CONSTRAINT:
-        cs = pyplot.contour(X1, X2,f_image, [0])
+        cs = pyplot.contour(X1, X2,f_image, [0], linewidths=2.0)
     elif functionType == OBJECTIVE_FUNCTION:
         if levels is not None:
             cs = pyplot.contour(X1, X2,f_image, levels)
         else:
             cs = pyplot.contour(X1, X2,f_image)
-#         pyplot.quiver(X1,X2,(10,10),(10,10))
         pyplot.clabel(cs, colors='k')
     return cs
 
 
-def quiverGradientOf2dFunction(x1_domain, x2_domain, f, functionType, levels=None):
-    X1, X2 = meshgrid(x1_domain, x2_domain)
-    epsilon = 1e-9
+def gradientOf2dFunction(x1_domain, x2_domain, f, eval_points=15):
+    def ff(x):
+        return f(x[0], x[1])
     
-    f_image = zeros((len(x1_domain),len(x2_domain)))
-    f_image = zeros((len(x1_domain),len(x2_domain)))
+    xx1 = linspace(x1_domain[0],x1_domain[-1], eval_points)
+    xx2 = linspace(x2_domain[0],x2_domain[-1], eval_points)
+    xx1, xx2 = meshgrid(xx1, xx2)
+    U = zeros((   len(xx1), len(xx2) ))
+    V = zeros((   len(xx1), len(xx2) ))
+    for i in xrange(len(xx1)):
+        for j in xrange(len(xx2)):
+            x = xx1[i,j]
+            y = xx2[i,j]
+            U[i,j] = gradient(ff, [x,y] )[1]
+            V[i,j] = gradient(ff, [x,y] )[0]
+    pyplot.quiver(xx2, xx1, U,V, color=((0.4,0.75,0.6)))
+    
