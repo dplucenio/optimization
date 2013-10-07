@@ -39,7 +39,7 @@ def exercise_3_8():
     contourTwoVariablefunction(x1_domain, x2_domain,g4, INEQUALITY_CONSTRAINT)
     contourTwoVariablefunction(x1_domain, x2_domain,f, OBJECTIVE_FUNCTION, levels=linspace(0,-22,6))
     gradientOf2dFunction(x1_domain, x2_domain, f,21)
-    
+    pyplot.plot([3.0], [2.0], 'r.', markersize=20.0)
     pyplot.show()
     
     

@@ -58,5 +58,5 @@ def gradientOf2dFunction(x1_domain, x2_domain, f, eval_points=15):
             y = xx2[i,j]
             U[i,j] = gradient(ff, [x,y] )[1]
             V[i,j] = gradient(ff, [x,y] )[0]
-    pyplot.quiver(xx2, xx1, U,V, color=((0.4,0.75,0.6)))
+    return pyplot.quiver(xx2, xx1, U,V, color=((0.4,0.75,0.6)))
     
