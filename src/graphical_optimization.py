@@ -28,17 +28,18 @@ def contourTwoVariablefunction(x1_domain, x2_domain, f, functionType, levels=Non
     for i,x1 in enumerate(x1_domain):
         for j,x2 in enumerate(x2_domain):
             f_image[i,j] = f(x1, x2)
-    if functionType == OBJECTIVE_FUNCTION:
+            
+    if functionType == INEQUALITY_CONSTRAINT:
+        cs = pyplot.contourf(X1, X2,f_image, [0,max(max(x1_domain), max(x2_domain))], colors=((0.75,0.75,0.75,),))
+    elif functionType == EQUALITY_CONSTRAINT:
+        cs = pyplot.contour(X1, X2,f_image, [0])
+    elif functionType == OBJECTIVE_FUNCTION:
         if levels is not None:
             cs = pyplot.contour(X1, X2,f_image, levels)
         else:
             cs = pyplot.contour(X1, X2,f_image)
 #         pyplot.quiver(X1,X2,(10,10),(10,10))
-        pyplot.clabel(cs)
-    elif functionType == EQUALITY_CONSTRAINT:
-        cs = pyplot.contour(X1, X2,f_image, [0])
-    elif functionType == INEQUALITY_CONSTRAINT:
-        cs = pyplot.contourf(X1, X2,f_image, [0,max(max(x1_domain), max(x2_domain))])
+        pyplot.clabel(cs, colors='k')
     return cs
 
 

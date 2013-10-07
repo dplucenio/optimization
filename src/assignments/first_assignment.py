@@ -48,4 +48,4 @@ def exercise_3_13():
     pyplot.show()
     
 if __name__ == "__main__":
-    exercise_3_1()
+    exercise_3_8()
