@@ -1,6 +1,5 @@
 import unittest
 from calculus import gradient, hessian
-from numpy import array
 from numpy.testing import assert_almost_equal
 
 class Test(unittest.TestCase):
