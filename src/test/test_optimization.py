@@ -1,5 +1,5 @@
 import unittest
-from optimization import firstOrderNecessaryCondition
+from optimization.optimality_conditions import firstOrderNecessaryCondition
 
 
 class Test(unittest.TestCase):

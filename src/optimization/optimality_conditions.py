@@ -16,3 +16,4 @@ def firstOrderNecessaryCondition(f, point, epsilon=1e-4):
 
 
 def secondOrderSufficientCondition(f, point, epsilon=1e-4):
+    pass
