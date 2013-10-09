@@ -1,9 +1,7 @@
 from matplotlib import pyplot as pyplot
 from numpy import linspace
 
-from optimization.graphical_optimization import contourTwoVariablefunction, EQUALITY_CONSTRAINT, \
-    INEQUALITY_CONSTRAINT, OBJECTIVE_FUNCTION, gradientOf2dFunction, graphicalOptimization
-from scipy.optimize.minpack import fsolve
+from optimization.graphical_optimization import gradientOf2dFunction, graphicalOptimization
 
 
 def exercise_3_1():
