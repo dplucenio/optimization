@@ -14,3 +14,5 @@ def firstOrderNecessaryCondition(f, point, epsilon=1e-4):
     '''
     return (fabs(gradient(f, point)) < epsilon).all()
 
+
+def secondOrderSufficientCondition(f, point, epsilon=1e-4):
