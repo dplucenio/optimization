@@ -34,17 +34,17 @@ def contourTwoVariablefunction(x1_domain, x2_domain, f, functionType, levels=Non
             f_image[i,j] = f(x1, x2)
     
     if functionType == INEQUALITY_CONSTRAINT:
-        cs = pyplot.contourf(X2, X1,f_image, [0,max(max(x1_domain), max(x2_domain))], colors=((0.85,0.8,0.95,),))
+        cs = pyplot.contourf(X1, X2,f_image, [0,max(max(x1_domain), max(x2_domain))], colors=((0.85,0.8,0.95,),))
     elif functionType == EQUALITY_CONSTRAINT:
-        cs = pyplot.contour(X2, X1,f_image, [0], linewidths=2.0)
+        cs = pyplot.contour(X1, X2,f_image, [0], linewidths=2.0)
     elif functionType == OBJECTIVE_FUNCTION:
         if levels is not None:
-            cs = pyplot.contour(X2, X1,f_image, levels)
+            cs = pyplot.contour(X1, X2,f_image, levels)
         else:
             cs = pyplot.contour(X1, X2,f_image)
         pyplot.clabel(cs, colors='k')
-    pyplot.xlabel('x2')
-    pyplot.ylabel('x1')
+    pyplot.xlabel('x1')
+    pyplot.ylabel('x2')
     return cs
 
 
@@ -77,7 +77,7 @@ def gradientOf2dFunction(x1_domain, x2_domain, f, eval_points=15):
         for j in xrange(len(X2)):
             x = X1[i,j]
             y = X2[i,j]
-            U[i,j] = gradient(ff, [x,y] )[1]
-            V[i,j] = gradient(ff, [x,y] )[0]
-    return pyplot.quiver(X2, X1, U,V, color=((0.4,0.75,0.6)))
+            U[i,j] = gradient(ff, [x,y] )[0]
+            V[i,j] = gradient(ff, [x,y] )[1]
+    return pyplot.quiver(X1, X2, U,V, color=((0.4,0.75,0.6)))
     

@@ -26,8 +26,8 @@ def exercise_3_1():
     pyplot.show()
     
 def exercise_3_8():
-    x1_domain = linspace(-0.2, 6.2, 100)
-    x2_domain = linspace(-0.2, 6.2, 100)
+    x1_domain = linspace(-0.2, 8.2, 100)
+    x2_domain = linspace(-0.2, 3.4, 100)
     
     def f(x1, x2):
         return x1**2. - 2.*x2**2. - 4.*x1
@@ -40,9 +40,9 @@ def exercise_3_8():
     def g4(x1, x2):
         return -x2
             
-    graphicalOptimization(x1_domain, x2_domain, f, [g1, g2, g3, g4], [], levels=linspace(0,-22,6))
+    graphicalOptimization(x1_domain, x2_domain, f, [g1, g2, g3, g4], [], levels=linspace(6,-22,8))
     gradientOf2dFunction(x1_domain, x2_domain, f,21)
-    pyplot.plot([3.0], [2.0], 'k.', markersize=15.0)
+    pyplot.plot([2.0], [3.0], 'k.', markersize=15.0)
     pyplot.show()
     
     
