@@ -68,6 +68,15 @@ class Test(unittest.TestCase):
         assert_almost_equal(gradient(f,x), [0.0, 0.0], 3)
         assert_almost_equal(hessian(f,x), [[0.0, 0.0],[0.0, 8.0]], 3)
         
+    def testRosenBrockGradientAndHessian(self):
+        def rosenbrock(x):
+            x1 = x[0]
+            x2 = x[1]
+            return 10.0*x1**4.0 -20.0*x1**2.0*x2 + 10.0*x2**2.0 + x1**2.0 - 2.0*x1 + 5
+        x=[-1.0, 3.0]
+        assert_almost_equal(gradient(rosenbrock,x), [76.0, 40.0], 3)
+        assert_almost_equal(hessian(rosenbrock,x,1e-6), [[2.0, 40.0],[40.0, 20.0]], 1)
+        
         
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testLinearFunction']
