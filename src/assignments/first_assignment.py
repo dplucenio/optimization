@@ -1,12 +1,15 @@
 from matplotlib import pyplot as pyplot
-from numpy import linspace
+from numpy import linspace, array, zeros, dot
+from scipy.optimize import fsolve
 
-from optimization.graphical_optimization import gradientOf2dFunction, graphicalOptimization
+from calculus import gradient
+from optimization.graphical_optimization import gradientOf2dFunction, graphicalOptimization, \
+    plotOptimalityConditionAt
 
 
 def exercise_3_1():
-    x1_domain = linspace(-0.2, 4.0, 300)
-    x2_domain = linspace(-0.2, 4.0, 300)
+    x1_domain = linspace(-0.2, 4.2, 300)
+    x2_domain = linspace(-0.2, 4.2, 300)
     
     def f(x1, x2):
         return (x1-3.)**2. +(x2-3.)**2.
@@ -21,7 +24,7 @@ def exercise_3_1():
         return -x2 
     
     graphicalOptimization(x1_domain, x2_domain, f, [g1, g2, g3], [], levels=linspace(0,16,17))
-    gradientOf2dFunction(x1_domain, x2_domain, f)
+    plotOptimalityConditionAt(2.0, 2.0, x1_domain, x2_domain, f, curveDirection=[0.0, -1.0])
     pyplot.plot([2.0], [2.0], 'k.', markersize=15.0)
     pyplot.show()
     
@@ -49,14 +52,55 @@ def exercise_3_8():
 def exercise_3_13():
     x1_domain = linspace(-6.0, 6.0, 100)
     x2_domain = linspace(-6.0, 6.0, 100)
-    
+     
     def f(x1, x2):
         return 9.*x1**2. + 13.*x2**2. + 18.*x1*x2 - 4.
     def h1(x1, x2):
         return x1**2. + x2**2. + 2.*x1 - 16
-            
+             
     graphicalOptimization(x1_domain, x2_domain, f, [], [h1], levels=[5,15,50,100,200,300,450,600])
     gradientOf2dFunction(x1_domain, x2_domain, f)
+    pyplot.show()
+
+     
+def exercise_3_21():
+    x1_domain = linspace(-6.0, 50.0, 300)
+    x2_domain = linspace(-6.0, 60.0, 300)
+    
+    M = 8000.0
+    sigma_a = 0.8
+    V = 150.0
+    tau_a = 0.3
+    
+    
+    def f(b, d):
+        return b * d
+    
+    def g1(b, d):
+        return 6.0 * M - (sigma_a * b * d**2.0)
+    
+    def g2(b, d):
+        return 3.0 * V - (tau_a * 2.0 * b * d)
+    
+    def g3(b, d):
+        return d - 2.0 * b
+    
+    def g4(b, d):
+        return -b
+    
+    def g5(b, d):
+        return -d
+            
+    graphicalOptimization(
+        x1_domain,
+        x2_domain,
+        f,
+        [g1,g2,g3,g4,g5],
+        [g1,g2,g3,g4,g5],
+        levels=[200.0, 400.0, 600.0, 800, 1000.0, 1216.0, 1500.0, 1800.0, 2100.0, 2400.0]
+    )
+    gradientOf2dFunction(x1_domain, x2_domain, f)
+    pyplot.plot([24.66], [24.66*2], 'k.', markersize=15.0)
     pyplot.show()
     
     

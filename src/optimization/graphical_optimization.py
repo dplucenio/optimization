@@ -1,5 +1,5 @@
 from matplotlib import pyplot as pyplot
-from numpy import zeros, meshgrid, linspace
+from numpy import zeros, meshgrid, linspace, dot
 from calculus import gradient
 
 # todo: Replace these for a nice enum python implementation
@@ -34,7 +34,7 @@ def contourTwoVariablefunction(x1_domain, x2_domain, f, functionType, levels=Non
             f_image[i,j] = f(x1, x2)
     
     if functionType == INEQUALITY_CONSTRAINT:
-        cs = pyplot.contourf(X1, X2,f_image, [0,max(max(x1_domain), max(x2_domain))], colors=((0.85,0.8,0.95,),))
+        cs = pyplot.contourf(X1, X2,f_image, [0,1.0e300], colors=((0.85,0.8,0.95,),))
     elif functionType == EQUALITY_CONSTRAINT:
         cs = pyplot.contour(X1, X2,f_image, [0], linewidths=2.0)
     elif functionType == OBJECTIVE_FUNCTION:
@@ -80,4 +80,30 @@ def gradientOf2dFunction(x1_domain, x2_domain, f, eval_points=15):
             U[i,j] = gradient(ff, [x,y] )[0]
             V[i,j] = gradient(ff, [x,y] )[1]
     return pyplot.quiver(X1, X2, U,V, color=((0.4,0.75,0.6)))
+
+
+def plotOptimalityConditionAt(x1, x2, x1_domain, x2_domain, f, curveDirection=None):
+    def ff(x):
+        return f(x[0], x[1])
+    
+    X1 = [x1_domain[0], x1, x1_domain[-1]]
+    X2 = [x2_domain[0], x2, x2_domain[-1]]
+    X1, X2 = meshgrid(X1, X2)
+    U = zeros((   len(X1), len(X2) ))
+    V = zeros((   len(X1), len(X2) ))
+    grad= gradient(ff, [x1,x2] )
+    grad_norm = dot(grad,grad)**0.5
+    grad = grad/grad_norm
+    print grad
+    U[1,1] = grad[0]
+    V[1,1] = grad[1]
+    pyplot.quiver(X1, X2, U,V, color=((0.48,0.57,0.74)), scale=0.1, scale_units='xy', angles='xy')
+    if curveDirection is not None:
+        dir_norm = dot(curveDirection, curveDirection)**0.5
+        curveDirection=curveDirection/dir_norm
+        SU = zeros((   len(X1), len(X2) ))
+        SV = zeros((   len(X1), len(X2) ))
+        SU[1,1] = curveDirection[0] 
+        SV[1,1] = curveDirection[1]
+        pyplot.quiver(X1, X2, SU,SV, color=((1.0,0.5,0.0)), scale=0.1, scale_units='xy', angles='xy')
     
