@@ -9,6 +9,22 @@ def checkDescentDirection(function, point, direction):
     # TODO: Write documentation explaining this property of descent direction
     return dot(gradient(function, point), direction) < 0
 
+def constantLineSearch(f, x, d):
+    '''
+    This constant line search is only used with classical Newton method where the step size is not 
+    calculated, in other words:
+
+     /->    \    /->\   ->  
+    f|x     | = f|x | + d    
+     \ k + 1/    \ k/
+    
+    alpha = 1.0
+    
+    tex: f\left(x_{k+1}^{>}\right)=f\left(x_{k}^{>}\right)+d^{>}
+    '''
+    return 1.0
+    
+
 def goldenSearch(f, x, d, delta=0.1, epsilon = 1e-9, max_iterations=5000):
     a_1 = 0.0
     a_2 = 0.0
@@ -43,7 +59,7 @@ def goldenBracketedSearch(f, x_k, d, a_l, a_u, epsilon=1e-9):
         elif f_a == f_b:
             a_l = a_a
             a_u = a_b
-        return goldenBracketedSearch(f, x_k, d, a_l, a_u)
+        I = a_u - a_l
     return (a_l + a_u) * 0.5
 
 
