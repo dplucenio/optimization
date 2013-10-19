@@ -27,15 +27,46 @@ def constantLineSearch(f, x, d):
     '''
     return 1.0
 
-
-def goldenSearch(f, x, d, delta=0.1, epsilon = 1e-9, max_iterations=5000):
+def equalLineSearch(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
+    a_l, a_u = baseIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations, r=1.0)
+    I = a_u - a_l
+    while I > epsilon:
+        delta=delta*0.5
+        a_l, a_u = baseIntervalUncertaintyRegion(f, 
+            x, 
+            d, 
+            delta, 
+            epsilon, 
+            max_iterations, 
+            r=1.0, 
+            a_1=a_l,
+            a_2=a_l,
+            a_3=a_l
+        )
+        I = a_u - a_l
+    return (a_u + a_l) * 0.5
+        
+def goldenLineSearch(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
     a_l, a_u = goldenIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations)
     return goldenIntervalUncertaintydSearch(f, x, d, a_l, a_u, epsilon)
 
-def goldenIntervalUncertaintyRegion(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
-    a_1 = 0.0
-    a_2 = 0.0
-    a_3 = 0.0
+def quadraticLineSearch(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
+    a_l, a_u = goldenIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations)
+    return quadraticIntervalUncertaintydSearch(f, x, d, a_l, a_u, epsilon)
+
+def baseIntervalUncertaintyRegion(
+    f, 
+    x, 
+    d, 
+    delta=0.1, 
+    epsilon = 1e-6, 
+    max_iterations=5000, 
+    r=1.0, 
+    a_1=0.0, 
+    a_2=0.0, 
+    a_3=0.0
+    ): 
+    
     i = 0
     while i <= max_iterations:
         f_2 = f(x + a_2 * d)
@@ -47,9 +78,12 @@ def goldenIntervalUncertaintyRegion(f, x, d, delta=0.1, epsilon = 1e-6, max_iter
             a_2 = a_3
             a_3 = a_3 + delta
         i += 1
-        delta = delta*1.618
+        delta = delta * r
         # If reached maximum number of iterations, will return the last alpha found
-    return a_3
+    return a_1, a_3
+
+def goldenIntervalUncertaintyRegion(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
+    return baseIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations, r=1.618)
             
 def goldenIntervalUncertaintydSearch(f, x_k, d, a_l, a_u, epsilon=1e-6):
     I = a_u - a_l
@@ -67,12 +101,6 @@ def goldenIntervalUncertaintydSearch(f, x_k, d, a_l, a_u, epsilon=1e-6):
             a_u = a_b
         I = a_u - a_l
     return (a_l + a_u) * 0.5
-
-def quadraticLineSearch(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
-    '''
-    '''
-    a_l, a_u = goldenIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations)
-    return quadraticIntervalUncertaintydSearch(f, x, d, a_l, a_u, epsilon)
 
 def quadraticIntervalUncertaintydSearch(f, x_k, d, a_l, a_u, epsilon=1e-6):
     '''
@@ -115,7 +143,7 @@ def quadraticIntervalUncertaintydSearch(f, x_k, d, a_l, a_u, epsilon=1e-6):
         I = a_u - a_l
     return (a_l + a_u) * 0.5
 
-def armijoSearch(f, x, d, a=1.0, rho=0.2, eta=2.0, safe_mode=False):
+def armijoLineSearch(f, x, d, a=1.0, rho=0.2, eta=2.0, safe_mode=False):
     if safe_mode:
         assert checkDescentDirection(f, x, d) , 'Direction passed is not a descent direction'
          
