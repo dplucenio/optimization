@@ -75,7 +75,31 @@ class Test(unittest.TestCase):
         d=array([2.0])
         self.assertAlmostEqual(armijoLineSearch(parabolaFunction, x, d), 0.7, 6)
     
-
+def testaaa(self):
+        class A(object):
+            def __init__(self, f, g=None, h=None):
+                self.f = f
+                self.g = g
+                self.h = h
+                
+            def __call__(self, x):
+                return x
+            def gradient(self, x):
+                if self.g is None:
+                    return None
+                else:
+                    pass
+                return 1.0
+            
+            def hessian(self, x):
+                if self.h is None:
+                    return None
+                else:
+                    pass
+                return 1.0
+            
+        def f(x):
+            return x[0]**2.0
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testCheckDescentDirection']
     unittest.main()

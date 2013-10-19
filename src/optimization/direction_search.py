@@ -1,5 +1,6 @@
-'''
-Created on 18/10/2013
+def steepestDirectionSearch():
+    pass
 
-@author: Daniel
-'''
+def newtonDirectionSearch():
+    pass
+
