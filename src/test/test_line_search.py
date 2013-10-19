@@ -1,8 +1,6 @@
 from math import exp
 import unittest
-
 from numpy import array
-
 from calculus import gradient
 from optimization.line_search import checkDescentDirection, quadraticLineSearch, equalLineSearch, \
     goldenLineSearch, armijoLineSearch
