@@ -11,20 +11,24 @@ def exercise_3_1():
     x1_domain = linspace(-0.2, 4.2, 300)
     x2_domain = linspace(-0.2, 4.2, 300)
     
-    def f(x1, x2):
+    def f(x):
+        x1, x2 = x[0], x[1]
         return (x1-3.)**2. +(x2-3.)**2.
 
-    def g1(x1, x2):
+    def g1(x):
+        x1, x2 = x[0], x[1]
         return x1 + x2 -4
      
-    def g2(x1, x2):
+    def g2(x):
+        x1=x[0]
         return -x1
      
-    def g3(x1, x2):
+    def g3(x):
+        x2=x[1]
         return -x2 
     
     graphicalOptimization(x1_domain, x2_domain, f, [g1, g2, g3], [], levels=linspace(0,16,17))
-    plotOptimalityConditionAt(2.0, 2.0, x1_domain, x2_domain, f, curveDirection=[0.0, -1.0])
+    gradientOf2dFunction(x1_domain, x2_domain, f, 21)
     pyplot.plot([2.0], [2.0], 'k.', markersize=15.0)
     pyplot.show()
     
@@ -32,19 +36,24 @@ def exercise_3_8():
     x1_domain = linspace(-0.2, 8.2, 100)
     x2_domain = linspace(-0.2, 3.4, 100)
     
-    def f(x1, x2):
+    def f(x):
+        x1, x2 = x[0], x[1]
         return x1**2. - 2.*x2**2. - 4.*x1
-    def g1(x1, x2):
+    def g1(x):
+        x1, x2 = x[0], x[1]
         return x1 + x2 - 6
-    def g2(x1, x2):
+    def g2(x):
+        x1, x2 = x[0], x[1]
         return x2 - 3
-    def g3(x1, x2):
+    def g3(x):
+        x1, x2 = x[0], x[1]
         return -x1  
-    def g4(x1, x2):
+    def g4(x):
+        x1, x2 = x[0], x[1]
         return -x2
             
     graphicalOptimization(x1_domain, x2_domain, f, [g1, g2, g3, g4], [], levels=linspace(6,-22,8))
-    gradientOf2dFunction(x1_domain, x2_domain, f,21)
+    gradientOf2dFunction(x1_domain, x2_domain, f, 21)
     pyplot.plot([2.0], [3.0], 'k.', markersize=15.0)
     pyplot.show()
     
@@ -53,9 +62,11 @@ def exercise_3_13():
     x1_domain = linspace(-6.0, 6.0, 100)
     x2_domain = linspace(-6.0, 6.0, 100)
      
-    def f(x1, x2):
+    def f(x):
+        x1, x2 = x[0], x[1]
         return 9.*x1**2. + 13.*x2**2. + 18.*x1*x2 - 4.
-    def h1(x1, x2):
+    def h1(x):
+        x1, x2 = x[0], x[1]
         return x1**2. + x2**2. + 2.*x1 - 16
              
     graphicalOptimization(x1_domain, x2_domain, f, [], [h1], levels=[5,15,50,100,200,300,450,600])
@@ -73,22 +84,28 @@ def exercise_3_21():
     tau_a = 0.3
     
     
-    def f(b, d):
+    def f(x):
+        b, d = x[0], x[1]
         return b * d
     
-    def g1(b, d):
+    def g1(x):
+        b, d = x[0], x[1]
         return 6.0 * M - (sigma_a * b * d**2.0)
     
-    def g2(b, d):
+    def g2(x):
+        b, d = x[0], x[1]
         return 3.0 * V - (tau_a * 2.0 * b * d)
     
-    def g3(b, d):
+    def g3(x):
+        b, d = x[0], x[1]
         return d - 2.0 * b
     
-    def g4(b, d):
+    def g4(x):
+        b, d = x[0], x[1]
         return -b
     
-    def g5(b, d):
+    def g5(x):
+        b, d = x[0], x[1]
         return -d
             
     graphicalOptimization(
@@ -103,7 +120,5 @@ def exercise_3_21():
     pyplot.plot([24.66], [24.66*2], 'k.', markersize=15.0)
     pyplot.show()
     
-    
-    
 if __name__ == "__main__":
-    exercise_3_13()
+    exercise_3_21()
