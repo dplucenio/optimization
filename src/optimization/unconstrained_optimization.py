@@ -1,4 +1,4 @@
-from numpy import dot
+from numpy import dot, identity, mat, array
 from numpy.linalg import norm
 
 from calculus import gradient, hessian
@@ -170,3 +170,52 @@ class ModifiedNewtonOptimization(BaseUnconstrainedOptimization):
         self.current_grad = self.gradient(self.current_x)
         self.current_hess = self.hessian(self.current_x)
         self.rho = 0.5 * self.rho
+        
+class DfpOptimization(BaseUnconstrainedOptimization):
+    
+    def doInitialize(self):
+        self.current_x = self.x0
+        self.current_grad = self.gradient(self.current_x)
+        self.current_H = mat(identity(len(self.x0)))
+        
+    def doSolve(self):
+        # Calculate search direction
+        d =  - dot(array(self.current_H), self.current_grad)
+        alpha = self.lineSearch(self.objectiveFunction, self.current_x, d)
+        self.current_x = self.current_x + alpha * d
+        self.old_grad = self.current_grad
+        self.current_grad = self.gradient(self.current_x)
+        
+        # Update matrix A
+        y = mat(self.current_grad - self.old_grad).T # Change in gradient
+        s = mat(alpha * d).T # Change in design
+        z = self.current_H * y
+        
+        B = (s * s.T) / (s.T * y)
+        C = -(z * z.T) / (y.T * z)
+        self.current_H = self.current_H + B + C
+        
+class BfgsOptimization(BaseUnconstrainedOptimization):
+    
+    def doInitialize(self):
+        self.current_x = self.x0
+        self.current_grad = self.gradient(self.current_x)
+        self.current_H = mat(identity(len(self.x0)))
+        
+    def doSolve(self):
+        # Calculate search direction
+        d = newtonDirection(self.current_grad, array(self.current_H))
+        alpha = self.lineSearch(self.objectiveFunction, self.current_x, d)
+        self.current_x = self.current_x + alpha * d
+        self.old_grad = self.current_grad
+        self.current_grad = self.gradient(self.current_x)
+        
+        # Update matrix A
+        y = mat(self.current_grad - self.old_grad).T # Change in gradient
+        s = mat(alpha * d).T # Change in design
+        c = mat(self.old_grad).T
+        
+        D = (y * y.T) / (y.T * s)
+        E = (c * c.T) / dot(self.old_grad, d)
+        self.current_H = self.current_H + D + E
+        
