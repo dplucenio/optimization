@@ -1,7 +1,8 @@
 import unittest
-from optimization.direction_search import steepestDescentDirection, conjugateGradientDirection
+from optimization.direction_search import steepestDescentDirection, conjugateGradientDirection,\
+    newtonDirection
 from optimization.line_search import goldenLineSearch
-from calculus import gradient
+from calculus import gradient, hessian
 from numpy import array
 from numpy.testing import assert_almost_equal
 
@@ -12,6 +13,10 @@ def aroraExample_8_4(x):
 def aroraExample_8_5(x):
     x1, x2, x3 = x[0], x[1], x[2]
     return x1**2.0 + 2.0*x2**2.0 + 2.0*x3**2.0 + 2.0*x1*x2 + 2.0*x2*x3
+
+def aroraExample_9_6(x):
+    x1, x2 = x[0], x[1]
+    return 3.0*x1**2.0 + 2.0*x1*x2 + 2.0*x2**2.0 + 7.0
 
 class Test(unittest.TestCase):
 
@@ -84,5 +89,41 @@ class Test(unittest.TestCase):
         assert_almost_equal(alpha, 0.31545152, 5)
         
 
+    def testNewtonDirection_9_6_analytical(self):
+        f = aroraExample_9_6
+        def grad_f(x):
+            x1, x2 = x[0], x[1]
+            return array([6.0*x1 + 2.0*x2, 2.0*x1 + 4.0*x2])
+        def hessian_f(x):
+            return array([[6,2],[2,4]])
+            
+        x_0 = [5.0, 10.0]
+        grad_0 = grad_f(x_0)
+        hess_0 = hessian_f(x_0)
+        direction_0 = newtonDirection(x_0, grad_0, hess_0)
+        alpha_0 = goldenLineSearch(f, x_0, direction_0)
+        x_1 = x_0 + alpha_0*direction_0
+        assert_almost_equal(direction_0, [-5.0, -10.0], 5)
+        assert_almost_equal(alpha_0, 1.0, 5)
+        assert_almost_equal(x_1, [0.0, 0.0], 5)
+        
+    def testNewtonDirection_9_6_numeric(self):
+        f = aroraExample_9_6
+        def grad_f(x):
+            return gradient(f, x)
+        def hessian_f(x):
+            return hessian(f, x)
+            
+        x_0 = [5.0, 10.0]
+        grad_0 = grad_f(x_0)
+        hess_0 = hessian_f(x_0)
+        direction_0 = newtonDirection(x_0, grad_0, hess_0)
+        alpha_0 = goldenLineSearch(f, x_0, direction_0)
+        x_1 = x_0 + alpha_0*direction_0
+        assert_almost_equal(direction_0, [-5.0, -10.0], 1)
+        assert_almost_equal(alpha_0, 1.0, 2)
+        assert_almost_equal(x_1, [0.0, 0.0], 5)
+    
+    
 if __name__ == "__main__":
     unittest.main()

@@ -24,12 +24,24 @@ def gradient(f, point, epsilon=1e-6):
     @param epsilon: float
         The increment used in finite difference technique
     '''
+    # Old way:
+#     grad = zeros(len(point))
+#     x0 = point
+#     for i in xrange(len(point)):
+#         x = array(x0)
+#         x[i] += epsilon
+#         grad[i] = (f(x) - f(x0)) / epsilon
+#     return grad
     grad = zeros(len(point))
-    x0 = point
     for i in xrange(len(point)):
-        x = array(x0)
-        x[i] += epsilon
-        grad[i] = (f(x) - f(x0)) / epsilon
+        x1 = array(point)
+        x2 = array(point)
+        x1[i] -= epsilon
+        x2[i] += epsilon
+        f1 = f(x1)
+        f2 = f(x2)
+        df = (f2 - f1) / (2.0 * epsilon)
+        grad[i] = df
     return grad
 
 def hessian(f, point, epsilon=1e-6):

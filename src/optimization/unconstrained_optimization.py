@@ -1,9 +1,10 @@
 from calculus import gradient, hessian
-from optimization.direction_search import steepestDescentDirection, conjugateGradientDirection
+from optimization.direction_search import steepestDescentDirection, conjugateGradientDirection,\
+    newtonDirection
 from optimization.line_search import goldenLineSearch
 from numpy.linalg import norm
 
-class unconstrainedProblemSetup(object):
+class UnconstrainedProblemSetup(object):
     def __init__(
         self, 
         f, 
@@ -20,7 +21,7 @@ class unconstrainedProblemSetup(object):
         self.maxIterations = maxIterations
         self.storePoints = storePoints
         
-class optimizationOutput(object):
+class OptimizationOutput(object):
     def __init__(self):
         self.f = None
         self.x = None
@@ -30,24 +31,24 @@ class optimizationOutput(object):
         self.optimizationPath = None
         
 
-class baseUnconstrainedOptimization(object):
+class BaseUnconstrainedOptimization(object):
     def __init__(self, unconstrainedProblemSetup):
         self.x0 = unconstrainedProblemSetup.x0 
         self.objectiveFunction = unconstrainedProblemSetup.f
         # Assigning numeric gradient and hessian calculation callbacks if the objective function
         # does not have analytical functions for them
-        if (hasattr(unconstrainedProblemSetup.f, 'gradient')):
-            self.gradient = unconstrainedProblemSetup.f.gradient
+        if (hasattr(self.objectiveFunction, 'gradient')):
+            self.gradient = self.objectiveFunction.gradient
         else:
             def grad(x):
-                return gradient(unconstrainedProblemSetup.f, x)
+                return gradient(self.objectiveFunction, x)
             self.gradient = grad
-        if (hasattr(unconstrainedProblemSetup.f, 'hessian')):
-            self.gradient = unconstrainedProblemSetup.f.gradient
+        if (hasattr(self.objectiveFunction, 'hessian')):
+            self.gradient = self.objectiveFunction.gradient
         else:
-            def hessian(x):
-                return hessian(unconstrainedProblemSetup.f, x)
-            self.hessian = hessian
+            def hess(x):
+                return hessian(self.objectiveFunction, x)
+            self.hessian = hess
             
         self.current_grad = None
         self.current_x = None
@@ -70,7 +71,7 @@ class baseUnconstrainedOptimization(object):
                 self.points.append(self.current_x)
             self.iterationCount += 1
             
-        output = optimizationOutput()
+        output = OptimizationOutput()
         output.iterations = self.iterationCount
         output.x = self.current_x
         output.f = self.objectiveFunction(self.current_x)
@@ -87,7 +88,7 @@ class baseUnconstrainedOptimization(object):
         pass
         
     
-class steepestDescentOptimization(baseUnconstrainedOptimization):
+class SteepestDescentOptimization(BaseUnconstrainedOptimization):
     
     def doInitialize(self):
         self.current_x = self.x0
@@ -99,7 +100,7 @@ class steepestDescentOptimization(baseUnconstrainedOptimization):
         self.current_x = self.current_x + alpha * d
         self.current_grad = self.gradient(self.current_x)
         
-class conjugateGradientOptimization(baseUnconstrainedOptimization):
+class ConjugateGradientOptimization(BaseUnconstrainedOptimization):
     
     def doInitialize(self):
         self.current_x = self.x0
@@ -112,3 +113,16 @@ class conjugateGradientOptimization(baseUnconstrainedOptimization):
         self.current_x = self.current_x + alpha * d
         self.old_grad = self.current_grad
         self.current_grad = self.gradient(self.current_x)
+        
+class NewtonOptimization(BaseUnconstrainedOptimization):
+    def doInitialize(self):
+        self.current_x = self.x0
+        self.current_grad = self.gradient(self.current_x)
+        self.current_hess = self.hessian(self.current_x)
+
+    def doSolve(self):
+        d = newtonDirection(self.current_x, self.current_grad, self.current_hess)
+        alpha = goldenLineSearch(self.objectiveFunction, self.current_x, d)
+        self.current_x = self.current_x + alpha * d
+        self.current_grad = self.gradient(self.current_x)
+        self.current_hess = self.hessian(self.current_x)
