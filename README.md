@@ -3,7 +3,7 @@ optimization-teapm
 Repository to store all my studies and experiments from my masters Optimization discipline
 Unconstrained optimization algorithms
 -------------------------------------
-Simple usage: Define objective function, define unconstrained problem and solve with any UnconstrainedOptimization solvers (available now: SteepestDescent, ConjugateGradientan Newton. Soon: ModifiedNewton and QuasiNewton)
+Simple usage: Define objective function, define unconstrained problem and solve with any UnconstrainedOptimization solver available so far (SteepestDescent, ConjugateGradient and Newton Mehotd. Soon: ModifiedNewton and QuasiNewton)
 ```python
 def rosenbrockFunction(x):
     x1, x2 = x[0], x[1] 
