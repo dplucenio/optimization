@@ -1,6 +1,6 @@
 import unittest
 from optimization.direction_search import steepestDescentDirection, conjugateGradientDirection,\
-    newtonDirection
+    newtonDirection, modifiedNewtonDirection
 from optimization.line_search import goldenLineSearch
 from calculus import gradient, hessian
 from numpy import array
@@ -28,7 +28,7 @@ class Test(unittest.TestCase):
         
         x_0 = [1.0, 0.0]
         grad_0 = grad_f(x_0)
-        direction_0 = steepestDescentDirection(x_0, grad_0)
+        direction_0 = steepestDescentDirection(grad_0)
         alpha = goldenLineSearch(f, x_0, direction_0)
         assert_almost_equal(direction_0, [-2.0, 2.0], 5)
         assert_almost_equal(alpha, 0.25, 6)
@@ -43,7 +43,7 @@ class Test(unittest.TestCase):
         
         x_0 = [2.0, 4.0, 10.0]
         grad_0 = grad_f(x_0)
-        direction_0 = steepestDescentDirection(x_0, grad_0)
+        direction_0 = steepestDescentDirection(grad_0)
         alpha = goldenLineSearch(f, x_0, direction_0)
         assert_almost_equal(direction_0, [-12.0, -40.0, -48.0], 5)
         assert_almost_equal(alpha, 0.15872, 5)
@@ -60,7 +60,7 @@ class Test(unittest.TestCase):
         
         x_0 = [2.0, 4.0, 10.0]
         grad_0 = grad_f(x_0)
-        direction_0 = steepestDescentDirection(x_0, grad_0)
+        direction_0 = steepestDescentDirection(grad_0)
         alpha = goldenLineSearch(f, x_0, direction_0)
         assert_almost_equal(direction_0, [-12.0, -40.0, -48.0], 5)
         assert_almost_equal(alpha, 0.15872, 5)
@@ -76,14 +76,14 @@ class Test(unittest.TestCase):
         
         x_0 = [2.0, 4.0, 10.0]
         grad_0 = grad_f(x_0)
-        direction_0 = conjugateGradientDirection(x_0, grad_0, None)
+        direction_0 = conjugateGradientDirection(grad_0)
         alpha = goldenLineSearch(f, x_0, direction_0)
         assert_almost_equal(direction_0, [-12.0, -40.0, -48.0], 5)
         assert_almost_equal(alpha, 0.15872, 5)
         
         x_1 = x_0 + alpha*direction_0
         grad_1 = grad_f(x_1)
-        direction_1 = conjugateGradientDirection(x_1, grad_1, grad_0)
+        direction_1 = conjugateGradientDirection(grad_1, grad_0)
         alpha = goldenLineSearch(f, x_1, direction_1)
         assert_almost_equal(direction_1, [4.31908533,  3.81561485, -5.579345], 5)
         assert_almost_equal(alpha, 0.31545152, 5)
@@ -100,7 +100,7 @@ class Test(unittest.TestCase):
         x_0 = [5.0, 10.0]
         grad_0 = grad_f(x_0)
         hess_0 = hessian_f(x_0)
-        direction_0 = newtonDirection(x_0, grad_0, hess_0)
+        direction_0 = newtonDirection(grad_0, hess_0)
         alpha_0 = goldenLineSearch(f, x_0, direction_0)
         x_1 = x_0 + alpha_0*direction_0
         assert_almost_equal(direction_0, [-5.0, -10.0], 5)
@@ -117,12 +117,47 @@ class Test(unittest.TestCase):
         x_0 = [5.0, 10.0]
         grad_0 = grad_f(x_0)
         hess_0 = hessian_f(x_0)
-        direction_0 = newtonDirection(x_0, grad_0, hess_0)
+        direction_0 = newtonDirection(grad_0, hess_0)
         alpha_0 = goldenLineSearch(f, x_0, direction_0)
         x_1 = x_0 + alpha_0*direction_0
         assert_almost_equal(direction_0, [-5.0, -10.0], 1)
         assert_almost_equal(alpha_0, 1.0, 2)
         assert_almost_equal(x_1, [0.0, 0.0], 5)
+        
+    def testModifiedNewtonDirection(self):
+        f = aroraExample_9_6
+        def grad_f(x):
+            return gradient(f, x)
+        def hessian_f(x):
+            return hessian(f, x)
+        x_0 = [5.0, 10.0]
+        grad_0 = grad_f(x_0)
+        hess_0 = hessian_f(x_0)
+        
+        steepestDir = steepestDescentDirection(grad_0)
+        alpha = goldenLineSearch(f, x_0, steepestDir)
+        x_1_steepest = x_0 + alpha*steepestDir
+        
+        newtonDir = newtonDirection(grad_0, hess_0)
+        alpha = goldenLineSearch(f, x_0, newtonDir)
+        x_1_newton = x_0 + alpha*newtonDir
+        
+        # Modified newton direction with rho = 0.0 after alpha is calculated should give equivalent
+        # new position as classic newton method
+        modifiedNewtonDirLow = modifiedNewtonDirection(0.0, grad_0, hess_0)
+        alpha = goldenLineSearch(f, x_0, modifiedNewtonDirLow)
+        x_1_modNewton = x_0 + alpha*modifiedNewtonDirLow
+        assert_almost_equal(x_1_modNewton, x_1_newton, 2)
+        
+        # Modified newton direction with high rho after alpha is calculated should give equivalent
+        # new position as steepest descent method
+        modifiedNewtonDirHigh = modifiedNewtonDirection(1.0e3, grad_0, hess_0)
+        alpha = goldenLineSearch(f, x_0, modifiedNewtonDirHigh)
+        x_1_modNewton = x_0 + alpha*modifiedNewtonDirHigh
+        assert_almost_equal(x_1_modNewton, x_1_steepest, 2)
+        
+        
+    
     
     
 if __name__ == "__main__":

@@ -1,14 +1,16 @@
 from calculus import gradient, hessian
 from optimization.direction_search import steepestDescentDirection, conjugateGradientDirection,\
-    newtonDirection
-from optimization.line_search import goldenLineSearch
+    newtonDirection, modifiedNewtonDirection
+from optimization.line_search import goldenLineSearch, checkDescentDirection, armijoLineSearch,\
+    quadraticLineSearch, equalLineSearch
 from numpy.linalg import norm
 
 class UnconstrainedProblemSetup(object):
     def __init__(
         self, 
         f, 
-        x0, 
+        x0,
+        lineSearchMethod=goldenLineSearch, 
         absoluteEpsilon=1e-4, 
         relativeEpsilon=0.0, 
         maxIterations=200,
@@ -95,7 +97,7 @@ class SteepestDescentOptimization(BaseUnconstrainedOptimization):
         self.current_grad = self.gradient(self.current_x)
         
     def doSolve(self):
-        d = steepestDescentDirection(self.current_x, self.current_grad)
+        d = steepestDescentDirection(self.current_grad)
         alpha = goldenLineSearch(self.objectiveFunction, self.current_x, d)
         self.current_x = self.current_x + alpha * d
         self.current_grad = self.gradient(self.current_x)
@@ -108,7 +110,7 @@ class ConjugateGradientOptimization(BaseUnconstrainedOptimization):
         self.old_grad = None
         
     def doSolve(self):
-        d = conjugateGradientDirection(self.current_x, self.current_grad, self.old_grad)
+        d = conjugateGradientDirection(self.current_grad, self.old_grad)
         alpha = goldenLineSearch(self.objectiveFunction, self.current_x, d)
         self.current_x = self.current_x + alpha * d
         self.old_grad = self.current_grad
@@ -121,8 +123,27 @@ class NewtonOptimization(BaseUnconstrainedOptimization):
         self.current_hess = self.hessian(self.current_x)
 
     def doSolve(self):
-        d = newtonDirection(self.current_x, self.current_grad, self.current_hess)
+        d = newtonDirection(self.current_grad, self.current_hess)
         alpha = goldenLineSearch(self.objectiveFunction, self.current_x, d)
         self.current_x = self.current_x + alpha * d
         self.current_grad = self.gradient(self.current_x)
         self.current_hess = self.hessian(self.current_x)
+        
+class ModifiedNewtonOptimization(BaseUnconstrainedOptimization):
+    def doInitialize(self):
+        self.current_x = self.x0
+        self.current_grad = self.gradient(self.current_x)
+        self.current_hess = self.hessian(self.current_x)
+        self.rho = 1.0 # Set initially as a high constant
+
+    def doSolve(self):
+        d = modifiedNewtonDirection(self.rho, self.current_grad, self.current_hess)
+        while not checkDescentDirection(self.objectiveFunction, self.current_x, d):
+            print 'increasing rho, awesome. Science! :D'
+            self.rho = 2.0 * self.rho
+            d = modifiedNewtonDirection(self.rho, self.current_grad, self.current_hess)
+        alpha = goldenLineSearch(self.objectiveFunction, self.current_x, d)
+        self.current_x = self.current_x + alpha * d
+        self.current_grad = self.gradient(self.current_x)
+        self.current_hess = self.hessian(self.current_x)
+        self.rho = 0.5 * self.rho

@@ -1,12 +1,16 @@
 import unittest
 
-from numpy import linspace
+from numpy import linspace, array
+from math import exp
 
 import matplotlib.pyplot as pyplot
 from optimization.graphical_optimization import graphicalOptimization, gradientOf2dFunction, \
     plotOptimizationPath
 from optimization.unconstrained_optimization import UnconstrainedProblemSetup, \
-    SteepestDescentOptimization, ConjugateGradientOptimization, NewtonOptimization
+    SteepestDescentOptimization, ConjugateGradientOptimization, NewtonOptimization,\
+    ModifiedNewtonOptimization
+from calculus import gradient
+from optimization.line_search import goldenLineSearch
 
 
 def aroraExample_8_4(x):
@@ -21,7 +25,8 @@ def buildRosebrockOptimizationSetup():
     p1 = UnconstrainedProblemSetup(
         f = rosenbrock, 
         x0 = [- 1.0 , 3.0], 
-        # x0 = [- 1.0 , 1.5], classic newton is awesome but it gets lost here, use in report! :D 
+        lineSearchMethod = goldenLineSearch,
+#         x0 = [- 1.0 , 1.5], # classic newton is awesome but it gets lost here, use in report! :D 
         absoluteEpsilon = 1e-6,
         maxIterations = 500,
         storePoints=True
@@ -58,6 +63,29 @@ class Test(unittest.TestCase):
         output = opt.solve()
         print output.f, output.x, output.iterations
         plotOptimizationPathFromOutput(output)
+        
+    def testModifiedNewtonOptimization(self):
+        p1 = buildRosebrockOptimizationSetup()
+        opt = ModifiedNewtonOptimization(p1)
+        output = opt.solve()
+        print output.f, output.x, output.iterations
+        plotOptimizationPathFromOutput(output)
+        
+    def testFromReadme(self):
+        def rosenbrockFunction(x):
+            x1, x2 = x[0], x[1] 
+            return 10.0*x1**4.0 -20.0*x1**2.0*x2 + 10.0*x2**2.0 + x1**2.0 - 2.0*x1 + 5.0
+        
+        p1 = UnconstrainedProblemSetup(
+            f = rosenbrockFunction, 
+            x0 = [- 1.0 , 3.0], 
+            lineSearchMethod = goldenLineSearch, 
+            absoluteEpsilon = 1e-6,
+            maxIterations = 500,
+            )
+        
+        newtonOpt = NewtonOptimization(p1)
+        output = newtonOpt.solve()
 
 if __name__ == "__main__":
     unittest.main()
