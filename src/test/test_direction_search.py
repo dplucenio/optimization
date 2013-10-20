@@ -49,8 +49,8 @@ class Test(unittest.TestCase):
         assert_almost_equal(alpha, 0.15872, 5)
         
         x_1 = x_0 + alpha*direction_0
-        assert_almost_equal(grad_f(x_1), [-4.50688457, -4.4416123, 4.82814806] , 5)
-        assert_almost_equal(x_1, [0.09535947, -2.34880176, 2.38143789] , 5)
+        assert_almost_equal(grad_f(x_1), [-4.50688457, -4.4416123, 4.82814806] , 4)
+        assert_almost_equal(x_1, [0.09535947, -2.34880176, 2.38143789] , 4)
         
     def teststeepestDescentDirection_8_5_analytical(self):
         f = aroraExample_8_5
@@ -66,8 +66,8 @@ class Test(unittest.TestCase):
         assert_almost_equal(alpha, 0.15872, 5)
          
         x_1 = x_0 + alpha*direction_0
-        assert_almost_equal(grad_f(x_1), [-4.50688457, -4.4416123, 4.82814806] , 5)
-        assert_almost_equal(x_1, [0.09535947, -2.34880176, 2.38143789] , 5)
+        assert_almost_equal(grad_f(x_1), [-4.50688457, -4.4416123, 4.82814806] , 4)
+        assert_almost_equal(x_1, [0.09535947, -2.34880176, 2.38143789] , 4)
 
     def testconjugateGradientDirection_8_5_numeric(self):
         f = aroraExample_8_5
@@ -85,7 +85,7 @@ class Test(unittest.TestCase):
         grad_1 = grad_f(x_1)
         direction_1 = conjugateGradientDirection(grad_1, grad_0)
         alpha = goldenLineSearch(f, x_1, direction_1)
-        assert_almost_equal(direction_1, [4.31908533,  3.81561485, -5.579345], 5)
+        assert_almost_equal(direction_1, [4.31908533,  3.81561485, -5.579345], 4)
         assert_almost_equal(alpha, 0.31545152, 5)
         
 

@@ -1,6 +1,10 @@
 from numpy import dot
 from calculus import gradient
 
+# Default parameters fro line search
+DEFAULT_DELTA = 0.001 # Default delta for uncertainty interval search
+
+
 # TODO: Add documentation explaining techniques, meaning of a_l, a_u, d ...
 
 def checkDescentDirection(function, point, direction):
@@ -27,7 +31,7 @@ def constantLineSearch(f, x, d):
     '''
     return 1.0
 
-def equalLineSearch(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
+def equalLineSearch(f, x, d, delta=DEFAULT_DELTA, epsilon = 1e-6, max_iterations=5000):
     a_l, a_u = _baseIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations, r=1.0)
     I = a_u - a_l
     while I > epsilon:
@@ -46,11 +50,11 @@ def equalLineSearch(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
         I = a_u - a_l
     return (a_u + a_l) * 0.5
         
-def goldenLineSearch(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
+def goldenLineSearch(f, x, d, delta=DEFAULT_DELTA, epsilon = 1e-6, max_iterations=5000):
     a_l, a_u = __goldenIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations)
     return __goldenIntervalUncertaintydSearch(f, x, d, a_l, a_u, epsilon)
 
-def quadraticLineSearch(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
+def quadraticLineSearch(f, x, d, delta=DEFAULT_DELTA, epsilon = 1e-6, max_iterations=5000):
     a_l, a_u = __goldenIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations)
     return quadraticIntervalUncertaintydSearch(f, x, d, a_l, a_u, epsilon)
 
@@ -75,7 +79,7 @@ def _baseIntervalUncertaintyRegion(
     f, 
     x, 
     d, 
-    delta=0.1, 
+    delta=DEFAULT_DELTA, 
     epsilon = 1e-6, 
     max_iterations=5000, 
     r=1.0, 
@@ -99,7 +103,13 @@ def _baseIntervalUncertaintyRegion(
         # If reached maximum number of iterations, will return the last alpha found
     return a_1, a_3
 
-def __goldenIntervalUncertaintyRegion(f, x, d, delta=0.1, epsilon = 1e-6, max_iterations=5000):
+def __goldenIntervalUncertaintyRegion(f, 
+    x, 
+    d, 
+    delta=DEFAULT_DELTA, 
+    epsilon = 1e-6, 
+    max_iterations=5000
+    ): 
     return _baseIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations, r=1.618)
             
 def __goldenIntervalUncertaintydSearch(f, x_k, d, a_l, a_u, epsilon=1e-6):

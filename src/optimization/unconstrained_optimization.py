@@ -1,9 +1,11 @@
-from calculus import gradient, hessian
-from optimization.direction_search import steepestDescentDirection, conjugateGradientDirection,\
-    newtonDirection, modifiedNewtonDirection
-from optimization.line_search import goldenLineSearch, checkDescentDirection, armijoLineSearch,\
-    quadraticLineSearch, equalLineSearch
+from numpy import dot
 from numpy.linalg import norm
+
+from calculus import gradient, hessian
+from optimization.direction_search import steepestDescentDirection, conjugateGradientDirection, \
+    newtonDirection, modifiedNewtonDirection
+from optimization.line_search import goldenLineSearch
+
 
 class UnconstrainedProblemSetup(object):
     def __init__(
@@ -18,6 +20,7 @@ class UnconstrainedProblemSetup(object):
         ):
         self.f = f
         self.x0 = x0
+        self.lineSearchMethod=lineSearchMethod
         self.absoluteEpsilon = absoluteEpsilon
         self.relativeEpsilon = relativeEpsilon
         self.maxIterations = maxIterations
@@ -37,6 +40,7 @@ class BaseUnconstrainedOptimization(object):
     def __init__(self, unconstrainedProblemSetup):
         self.x0 = unconstrainedProblemSetup.x0 
         self.objectiveFunction = unconstrainedProblemSetup.f
+        
         # Assigning numeric gradient and hessian calculation callbacks if the objective function
         # does not have analytical functions for them
         if (hasattr(self.objectiveFunction, 'gradient')):
@@ -51,6 +55,8 @@ class BaseUnconstrainedOptimization(object):
             def hess(x):
                 return hessian(self.objectiveFunction, x)
             self.hessian = hess
+        
+        self.lineSearch = unconstrainedProblemSetup.lineSearchMethod
             
         self.current_grad = None
         self.current_x = None
@@ -98,7 +104,7 @@ class SteepestDescentOptimization(BaseUnconstrainedOptimization):
         
     def doSolve(self):
         d = steepestDescentDirection(self.current_grad)
-        alpha = goldenLineSearch(self.objectiveFunction, self.current_x, d)
+        alpha = self.lineSearch(self.objectiveFunction, self.current_x, d)
         self.current_x = self.current_x + alpha * d
         self.current_grad = self.gradient(self.current_x)
         
@@ -111,7 +117,7 @@ class ConjugateGradientOptimization(BaseUnconstrainedOptimization):
         
     def doSolve(self):
         d = conjugateGradientDirection(self.current_grad, self.old_grad)
-        alpha = goldenLineSearch(self.objectiveFunction, self.current_x, d)
+        alpha = self.lineSearch(self.objectiveFunction, self.current_x, d)
         self.current_x = self.current_x + alpha * d
         self.old_grad = self.current_grad
         self.current_grad = self.gradient(self.current_x)
@@ -124,7 +130,7 @@ class NewtonOptimization(BaseUnconstrainedOptimization):
 
     def doSolve(self):
         d = newtonDirection(self.current_grad, self.current_hess)
-        alpha = goldenLineSearch(self.objectiveFunction, self.current_x, d)
+        alpha = self.lineSearch(self.objectiveFunction, self.current_x, d)
         self.current_x = self.current_x + alpha * d
         self.current_grad = self.gradient(self.current_x)
         self.current_hess = self.hessian(self.current_x)
@@ -134,15 +140,32 @@ class ModifiedNewtonOptimization(BaseUnconstrainedOptimization):
         self.current_x = self.x0
         self.current_grad = self.gradient(self.current_x)
         self.current_hess = self.hessian(self.current_x)
+        
+        # Marquardt modification: rho * I will be added to the hessian in case neton method does
+        # not point to a descent direction
         self.rho = 1.0 # Set initially as a high constant
+        
+        # Additional parameters for modified newton method:
+        # theta sets how far from a descent direction this methods allows. If its set to 0.0 it checks
+        # strictly for descent directions
+        self.theta = 0.1
+        # betha is a parameter to not allow to small directions (observation, I think this is only 
+        # usefull when inaccurate line search methods are used such as armijo)
+        self.betha = 0.0
 
     def doSolve(self):
         d = modifiedNewtonDirection(self.rho, self.current_grad, self.current_hess)
-        while not checkDescentDirection(self.objectiveFunction, self.current_x, d):
-            print 'increasing rho, awesome. Science! :D'
+
+        # First modification to newton method:
+        while not dot(self.current_grad, d) < self.theta * norm(self.current_grad) * norm(d):
             self.rho = 2.0 * self.rho
             d = modifiedNewtonDirection(self.rho, self.current_grad, self.current_hess)
-        alpha = goldenLineSearch(self.objectiveFunction, self.current_x, d)
+        
+        # Second modification to newthon method
+        if norm(d) < self.betha * norm(self.current_grad):
+            d = d * self.betha *  norm(self.current_grad)/norm(d)
+            
+        alpha = self.lineSearch(self.objectiveFunction, self.current_x, d)
         self.current_x = self.current_x + alpha * d
         self.current_grad = self.gradient(self.current_x)
         self.current_hess = self.hessian(self.current_x)
