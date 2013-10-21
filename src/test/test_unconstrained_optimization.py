@@ -26,7 +26,6 @@ def buildRosebrockOptimizationSetup():
     p1 = UnconstrainedProblemSetup(
         f = aroraExample_9_7, 
         x0 = [- 1.0 , 3.0], 
-#         x0 = [- 1.0 , 1.5], # classic newton is awesome but it gets lost here, use in report! :D 
         lineSearchMethod = goldenLineSearch,
         absoluteEpsilon = 1e-6,
         maxIterations = 500,
@@ -73,6 +72,12 @@ class Test(unittest.TestCase):
         assert_almost_equal(output.x, [1.0, 1.0] , 5)
         assert_equal(output.iterations, 9)
 #         plotOptimizationPathFromOutput(output)
+
+    def testNewtonOptimizationWithNotDescentDirection(self):
+        p1 = buildRosebrockOptimizationSetup()
+        p1.x0 = [- 1.0 , 1.5] 
+        opt = NewtonOptimization(p1)
+        self.assertRaises(AssertionError, opt.solve)
         
     def testModifiedNewtonOptimization(self):
         p1 = buildRosebrockOptimizationSetup()

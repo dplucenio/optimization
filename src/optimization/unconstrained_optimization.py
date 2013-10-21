@@ -4,7 +4,8 @@ from numpy.linalg import norm
 from calculus import gradient, hessian
 from optimization.direction_search import steepestDescentDirection, conjugateGradientDirection, \
     newtonDirection, modifiedNewtonDirection
-from optimization.line_search import goldenLineSearch
+from optimization.line_search import goldenLineSearch, assertDescentDirection,\
+    assertDescentDirectionWithGradient
 
 
 class UnconstrainedProblemSetup(object):
@@ -50,7 +51,7 @@ class BaseUnconstrainedOptimization(object):
                 return gradient(self.objectiveFunction, x)
             self.gradient = grad
         if (hasattr(self.objectiveFunction, 'hessian')):
-            self.gradient = self.objectiveFunction.gradient
+            self.hessian = self.objectiveFunction.hessian
         else:
             def hess(x):
                 return hessian(self.objectiveFunction, x)
@@ -130,6 +131,7 @@ class NewtonOptimization(BaseUnconstrainedOptimization):
 
     def doSolve(self):
         d = newtonDirection(self.current_grad, self.current_hess)
+        assertDescentDirectionWithGradient(self.current_grad, d)
         alpha = self.lineSearch(self.objectiveFunction, self.current_x, d)
         self.current_x = self.current_x + alpha * d
         self.current_grad = self.gradient(self.current_x)
@@ -143,7 +145,7 @@ class ModifiedNewtonOptimization(BaseUnconstrainedOptimization):
         
         # Marquardt modification: rho * I will be added to the hessian in case neton method does
         # not point to a descent direction
-        self.rho = 1.0 # Set initially as a high constant
+        self.rho = 0.001 # Set initially as a high constant
         
         # Additional parameters for modified newton method:
         # theta sets how far from a descent direction this methods allows. If its set to 0.0 it checks

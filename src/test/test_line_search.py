@@ -1,9 +1,10 @@
 from math import exp
 import unittest
-from numpy import array
+from numpy import array, linspace
 from calculus import gradient
 from optimization.line_search import checkDescentDirection, quadraticLineSearch, equalLineSearch, \
     goldenLineSearch, armijoLineSearch
+import matplotlib.pyplot as pyplot
 
 
 def parabolaFunction(x):
@@ -12,7 +13,32 @@ def parabolaFunction(x):
 def aroraExample(x):
     return 3.0*x[0]**2.0 + 2.0*x[0]*x[1] + 2.0*x[1]**2.0 + 7.0
 
+def rosenBrockFunction(x):
+    x, y = x[0], x[1]
+    return (1.0 - x)**2.0 + 100.0*(y - x**2.0)**2.0
+
+
 class Test(unittest.TestCase):
+    
+    def testLineSearchComparison(self):
+        '''
+        '''
+        d = array([ -4.99061089, 13.04943371])
+        x = [-1.30789523,  1.71786859]
+        
+        def ff(a):
+            return rosenBrockFunction(x + a*d)
+         
+        a_golden = goldenLineSearch(rosenBrockFunction, x, d)
+        a_quad = quadraticLineSearch(rosenBrockFunction, x, d)
+        print a_golden,  a_quad, a_golden - a_quad
+        v=[]
+        b=[]
+        for i in linspace(0,0.0002,100):
+            v.append(i)
+            b.append(ff(i))
+        pyplot.plot(v,b)
+        pyplot.show()
     
     def testCheckDescentDirection(self):
         def f(x):

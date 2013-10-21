@@ -1,5 +1,6 @@
 from numpy import zeros, array
 
+
 def gradient(f, point, epsilon=1e-6):
     '''
     Evaluates the gradient of a multidimensional function f(x1, x2, x3, ..., xn) at a given point
@@ -51,3 +52,18 @@ def hessian(f, point, epsilon=1e-6):
             return gradient(f, point,epsilon)[i]
         hessian[i,:] = gradient(ff, point, epsilon)
     return hessian
+
+class AnalyticalGradientAndHessianFunction(object):
+    def __init__(self, function, gradientFunction, hessianFunction):
+        self.function = function
+        self.gradientFunction = gradientFunction
+        self.hessianFunction = hessianFunction
+    
+    def __call__(self, x):
+        return self.function(x)
+    
+    def gradient(self, x):
+        return self.gradientFunction(x)
+    
+    def hessian(self, x):
+        return self.hessianFunction(x)

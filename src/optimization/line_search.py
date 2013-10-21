@@ -1,10 +1,6 @@
 from numpy import dot
 from calculus import gradient
 
-# Default parameters fro line search
-DEFAULT_DELTA = 0.001 # Default delta for uncertainty interval search
-
-
 # TODO: Add documentation explaining techniques, meaning of a_l, a_u, d ...
 
 def checkDescentDirection(function, point, direction):
@@ -12,6 +8,20 @@ def checkDescentDirection(function, point, direction):
     '''
     # TODO: Write documentation explaining this property of descent direction
     return dot(gradient(function, point), direction) < 0
+
+def checkDescentDirectionWithGradient(gradient, direction):
+    '''
+    '''
+    # TODO: Write documentation explaining this property of descent direction
+    return dot(gradient, direction) < 0
+
+def assertDescentDirection(function, point, direction):
+    assert checkDescentDirection(function, point, direction), \
+        'Entered line search with not descent direction: %s'%direction
+        
+def assertDescentDirectionWithGradient(gradient, direction):
+    assert checkDescentDirectionWithGradient(gradient, direction), \
+        'Entered line search with not descent direction: %s'%direction
 
 def alphaOneVariableFunction(f, x, d, alpha):
     return f(x + alpha * d)
@@ -31,18 +41,17 @@ def constantLineSearch(f, x, d):
     '''
     return 1.0
 
-def equalLineSearch(f, x, d, delta=DEFAULT_DELTA, epsilon = 1e-6, max_iterations=5000):
-    a_l, a_u = _baseIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations, r=1.0)
+def equalLineSearch(f, x, d, delta=0.01, epsilon = 1e-6, max_iterations=5000):
+    a_l, a_u = __baseIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations)
     I = a_u - a_l
     while I > epsilon:
         delta=delta*0.5
-        a_l, a_u = _baseIntervalUncertaintyRegion(f, 
+        a_l, a_u = __baseIntervalUncertaintyRegion(f, 
             x, 
             d, 
             delta, 
             epsilon, 
             max_iterations, 
-            r=1.0, 
             a_1=a_l,
             a_2=a_l,
             a_3=a_l
@@ -50,17 +59,15 @@ def equalLineSearch(f, x, d, delta=DEFAULT_DELTA, epsilon = 1e-6, max_iterations
         I = a_u - a_l
     return (a_u + a_l) * 0.5
         
-def goldenLineSearch(f, x, d, delta=DEFAULT_DELTA, epsilon = 1e-6, max_iterations=5000):
+def goldenLineSearch(f, x, d, delta=0.01, epsilon = 1e-6, max_iterations=5000):
     a_l, a_u = __goldenIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations)
     return __goldenIntervalUncertaintydSearch(f, x, d, a_l, a_u, epsilon)
 
-def quadraticLineSearch(f, x, d, delta=DEFAULT_DELTA, epsilon = 1e-6, max_iterations=5000):
-    a_l, a_u = __goldenIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations)
+def quadraticLineSearch(f, x, d, delta=0.01, epsilon = 1e-6, max_iterations=5000):
+    a_l, a_u = __baseIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations)
     return quadraticIntervalUncertaintydSearch(f, x, d, a_l, a_u, epsilon)
 
 def armijoLineSearch(f, x, d, a=1.0, rho=0.2, eta=2.0, safe_mode=False):
-    if safe_mode:
-        assert checkDescentDirection(f, x, d) , 'Direction passed is not a descent direction'
          
     def f_a(alpha):
         return alphaOneVariableFunction(f, x, d, alpha)
@@ -75,11 +82,11 @@ def armijoLineSearch(f, x, d, a=1.0, rho=0.2, eta=2.0, safe_mode=False):
         a = a * 0.7
     return a
 
-def _baseIntervalUncertaintyRegion(
+def __baseIntervalUncertaintyRegion(
     f, 
     x, 
     d, 
-    delta=DEFAULT_DELTA, 
+    delta=0.01, 
     epsilon = 1e-6, 
     max_iterations=5000, 
     r=1.0, 
@@ -106,11 +113,11 @@ def _baseIntervalUncertaintyRegion(
 def __goldenIntervalUncertaintyRegion(f, 
     x, 
     d, 
-    delta=DEFAULT_DELTA, 
+    delta=0.1, 
     epsilon = 1e-6, 
     max_iterations=5000
     ): 
-    return _baseIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations, r=1.618)
+    return __baseIntervalUncertaintyRegion(f, x, d, delta, epsilon, max_iterations, r=1.618)
             
 def __goldenIntervalUncertaintydSearch(f, x_k, d, a_l, a_u, epsilon=1e-6):
     I = a_u - a_l
