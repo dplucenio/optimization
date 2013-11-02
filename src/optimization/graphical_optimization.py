@@ -54,7 +54,7 @@ def graphicalOptimization(
     inequalityFunctions, 
     equalityFunctions,
     levels=None
-    ): 
+    ):
     for g in inequalityFunctions:
         contourTwoVariablefunction(x1_domain, x2_domain, g, INEQUALITY_CONSTRAINT)
     for h in equalityFunctions:
@@ -81,8 +81,7 @@ def plotOptimizationPath(points):
     for point in points:
         x1.append(point[0])
         x2.append(point[1])
-    pyplot.plot(x1, x2, color=((0.48,0.57,0.74)), marker='o', linewidth=2)
-    
+    l=pyplot.plot(x1, x2, color=((0.48,0.57,0.74)), marker='o', linewidth=2)
 
 def plotOptimalityConditionAt(x1, x2, x1_domain, x2_domain, f, curveDirection=None):
     

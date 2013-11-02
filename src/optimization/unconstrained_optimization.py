@@ -35,6 +35,7 @@ class OptimizationOutput(object):
         self.convergeceStatus = None
         self.convergeceReason = None
         self.optimizationPath = None
+        self.residual = None
         
 
 class BaseUnconstrainedOptimization(object):
@@ -85,6 +86,7 @@ class BaseUnconstrainedOptimization(object):
         output.x = self.current_x
         output.f = self.objectiveFunction(self.current_x)
         output.optimizationPath = self.points
+        output.residual = norm(self.current_grad)
         return output
             
     def stopCriteriumAttended(self):
@@ -131,7 +133,7 @@ class NewtonOptimization(BaseUnconstrainedOptimization):
 
     def doSolve(self):
         d = newtonDirection(self.current_grad, self.current_hess)
-        assertDescentDirectionWithGradient(self.current_grad, d)
+#         assertDescentDirectionWithGradient(self.current_grad, d)
         alpha = self.lineSearch(self.objectiveFunction, self.current_x, d)
         self.current_x = self.current_x + alpha * d
         self.current_grad = self.gradient(self.current_x)
