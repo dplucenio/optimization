@@ -133,7 +133,7 @@ class NewtonOptimization(BaseUnconstrainedOptimization):
 
     def doSolve(self):
         d = newtonDirection(self.current_grad, self.current_hess)
-#         assertDescentDirectionWithGradient(self.current_grad, d)
+        assertDescentDirectionWithGradient(self.current_grad, d)
         alpha = self.lineSearch(self.objectiveFunction, self.current_x, d)
         self.current_x = self.current_x + alpha * d
         self.current_grad = self.gradient(self.current_x)

@@ -121,4 +121,4 @@ def exercise_3_21():
     pyplot.show()
     
 if __name__ == "__main__":
-    exercise_3_21()
+    exercise_3_13()

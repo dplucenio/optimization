@@ -34,7 +34,7 @@ def contourTwoVariablefunction(x1_domain, x2_domain, f, functionType, levels=Non
             f_image[i,j] = f([x1, x2])
     
     if functionType == INEQUALITY_CONSTRAINT:
-        cs = pyplot.contourf(X1, X2,f_image, [0,1.0e300], colors=((0.85,0.8,0.95,),))
+        cs = pyplot.contourf(X1, X2, f_image, [0,1.0e300], colors=((0.85,0.8,0.95,),))
     elif functionType == EQUALITY_CONSTRAINT:
         cs = pyplot.contour(X1, X2,f_image, [0], linewidths=2.0)
     elif functionType == OBJECTIVE_FUNCTION:
@@ -53,13 +53,16 @@ def graphicalOptimization(
     objectiveFunction, 
     inequalityFunctions, 
     equalityFunctions,
-    levels=None
+    levels=None,
+    path=None
     ):
     for g in inequalityFunctions:
         contourTwoVariablefunction(x1_domain, x2_domain, g, INEQUALITY_CONSTRAINT)
     for h in equalityFunctions:
         contourTwoVariablefunction(x1_domain, x2_domain, h, EQUALITY_CONSTRAINT)
     contourTwoVariablefunction(x1_domain, x2_domain, objectiveFunction, OBJECTIVE_FUNCTION, levels)
+    if path is not None:
+        plotOptimizationPath(path)
 
 def gradientOf2dFunction(x1_domain, x2_domain, f, eval_points=15):
     X1 = linspace(x1_domain[0],x1_domain[-1], eval_points)
