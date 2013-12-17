@@ -210,6 +210,7 @@ class BfgsOptimization(BaseUnconstrainedOptimization):
         # Calculate search direction
         d = newtonDirection(self.current_grad, array(self.current_H))
         alpha = self.lineSearch(self.objectiveFunction, self.current_x, d)
+        print self.current_x, d, alpha
         self.current_x = self.current_x + alpha * d
         self.old_grad = self.current_grad
         self.current_grad = self.gradient(self.current_x)

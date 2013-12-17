@@ -82,7 +82,7 @@ class ExternalPenaltyOptimization(object):
         
 class AugmentedLagrangianOptimization(object):
     
-    def __init__(self, constrainedProblemSetup, baseUnconstrainedOptimization, rho=0.1):
+    def __init__(self, constrainedProblemSetup, baseUnconstrainedOptimization, rho=1000.0):
         self.objectiveFunction = constrainedProblemSetup.f
         self.equalityConstraints = constrainedProblemSetup.h
         self.inequalityConstraints = constrainedProblemSetup.g
@@ -91,9 +91,10 @@ class AugmentedLagrangianOptimization(object):
         self.unconstrainedOptimization = baseUnconstrainedOptimization
         self.rho = rho
         self.mi = numpy.zeros(len(self.inequalityConstraints))
-        self.mi[3] = 2511.59595516
-#         for i in xrange(len(self.inequalityConstraints)):
-#             self.mi[i] = 0.3
+#         self.mi[3] = 2511.59595516
+#         self.mi[2] = 2511.59595516
+        for i in xrange(len(self.inequalityConstraints)):
+            self.mi[i] = 0.3
         #TODO: Implement lagrangian multipliers initialization for equality constraints
         #TODO: Improve this residuals (extract them to setup)
         self.absoluteResidualCriterium = 1.0e-6
@@ -136,13 +137,14 @@ class AugmentedLagrangianOptimization(object):
                 storePoints=True
             )
             opt = self.unconstrainedOptimization(p1)
-            print 'gradient of transformed:', gradient(self.transformedObjectiveFunction, self.x0)
+#             print 'gradient of transformed:', gradient(self.transformedObjectiveFunction, self.x0)
             output = opt.solve()
-            print output.x
+#             print output.x
             if iteration > 1:
                 relativeResidual = abs(output.f - latestOptimization)
                 
-            self.rho = self.rho * 2.0
+#             self.rho = self.rho * 10.0
+            self._updatePenaltyParameter(self.x0, output.x)
             latestOptimization = output.f
             self.x0 = output.x
             self._updateLagrangianMultipliers(self.x0)
@@ -151,7 +153,7 @@ class AugmentedLagrangianOptimization(object):
             converged = self._checkConvergenceCriteria(relativeResidual)
             
         output.optimizationPath = completePath
-        print output.f
+#         print output.f
         return output
         
     def _updateLagrangianMultipliers(self, x):
@@ -168,7 +170,10 @@ class AugmentedLagrangianOptimization(object):
         h0 = numpy.zeros(len(self.inequalityConstraints))
         h1 = numpy.zeros(len(self.inequalityConstraints))
         for i in xrange(len(self.inequalityConstraints)):
-            pass
+            h0[i] = self.inequalityConstraints[i](x0)
+            h1[i] = self.inequalityConstraints[i](x1)
+        if numpy.linalg.norm(h1) > 0.1* (numpy.linalg.norm(h0)):
+            self.rho = self.rho * 10.0
             
     
     def _checkConvergenceCriteria(self, relativeResidual):
